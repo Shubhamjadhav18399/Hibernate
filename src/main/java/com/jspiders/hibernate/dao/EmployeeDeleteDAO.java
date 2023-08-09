@@ -1,0 +1,47 @@
+package com.jspiders.hibernate.dao;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Persistence;
+
+import org.jboss.jandex.Main;
+
+import com.jspiders.hibernate.dto.EmplyeeDTO;
+
+public class EmployeeDeleteDAO {
+
+	private static EntityManagerFactory factory;
+	private static EntityManager manager;
+	private static EntityTransaction transaction;
+	
+	private static void openConnection() {
+		factory = Persistence.createEntityManagerFactory("hibernate");
+		manager = factory.createEntityManager();
+		transaction = manager.getTransaction();
+	}
+	private static void closeConnection() {
+		if (factory!=null) {
+			factory.close();
+		}
+		if (manager!=null) {
+			manager.close();
+		}
+		if (transaction.isActive()) {
+			transaction.rollback();
+		}
+	}
+	public static void main(String[] args) {
+		try {
+			openConnection();
+			transaction.begin();
+			
+			EmplyeeDTO employee = manager.find(EmplyeeDTO.class,3);
+			manager.remove(employee);
+			
+			transaction.commit();
+		} finally {
+			closeConnection();
+		}
+	}
+}
